@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Antigravity 스타일의 개인 앱 사용 시간 기록 및 주간 리포트 분석 시스템",
   "scripts": {
-    "start": "npx -y http-server . -p 8080 -c-1 -o /daylog-improved.html",
+    "start": "npx -y http-server . -p 8080 -c-1 -o /index.html",
     "dev": "npx -y http-server . -p 8080 -c-1",
-    "package": "powershell -Command \"Compress-Archive -Path daylog-improved.html, daylog-improved.css, app-daylog.js, manifest.json, sw.js, icon.svg, README.md, PRIVACY_POLICY_TEMPLATE.md -DestinationPath DayLog_Release_v1.0.0.zip -Force\""
+    "package": "powershell -Command \"Compress-Archive -Path index.html, daylog-improved.html, daylog-improved.css, app-daylog.js, manifest.json, sw.js, icon.svg, _redirects, netlify.toml, README.md, PRIVACY_POLICY_TEMPLATE.md, CONTRIBUTING.md -DestinationPath 'dist/DayLog_Release_v1.0.0.zip' -Force\""
   },
   "keywords": [
     "daylog",

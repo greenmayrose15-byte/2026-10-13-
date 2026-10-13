@@ -2,6 +2,7 @@
 const CACHE_NAME = 'daylog-cache-v1';
 const ASSETS_TO_CACHE = [
   './',
+  './index.html',
   './daylog-improved.html',
   './daylog-improved.css',
   './app-daylog.js',
@@ -58,7 +59,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       }).catch(() => {
         if (event.request.mode === 'navigate') {
-          return caches.match('./daylog-improved.html');
+          return caches.match('./index.html') || caches.match('./daylog-improved.html');
         }
       });
     })

@@ -2,7 +2,7 @@
   "name": "DayLog - App Usage Tracker & Activity Journal",
   "short_name": "DayLog",
   "description": "Antigravity 스타일의 개인 앱 사용 시간 기록 및 주간 리포트 분석 시스템",
-  "start_url": "./daylog-improved.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#090d16",
   "theme_color": "#4f46e5",

@@ -54,9 +54,12 @@
 
 ```
 daylog/
-├── daylog-improved.html       # 메인 애플리케이션 마크업 (시맨틱 구조 & 접근성)
+├── index.html                 # Netlify / 웹 서버 표준 엔트리포인트 (404 방지)
+├── daylog-improved.html       # DayLog 메인 마크업
 ├── daylog-improved.css        # Antigravity 글래스모피즘 디자인 시스템 & 반응형
 ├── app-daylog.js              # 상태 관리, 타이머, 차트 엔진, 보안 로직
+├── _redirects                 # Netlify SPA 라우팅 및 리다이렉트 설정 파일
+├── netlify.toml               # Netlify 빌드 및 배포 구성 파일
 ├── manifest.json              # PWA 매니페스트
 ├── sw.js                      # 오프라인 캐싱 서비스 워커
 ├── icon.svg                   # 앱 고해상도 벡터 아이콘
@@ -71,19 +74,39 @@ daylog/
 
 ---
 
+## 🌐 Netlify 배포 가이드 (Page Not Found 해결)
+
+Netlify는 정적 사이트 배포 시 기본적으로 루트 경로(`/`)에서 **`index.html`**을 탐색합니다.
+기존에 `daylog-improved.html`만 존재했던 경우 Netlify에서 "Page Not Found (404)"가 발생하게 됩니다.
+
+### 해결 내용
+1. **`index.html` 제공**: Netlify가 기본으로 호출하는 `index.html`을 생성하여 루트 접근 시 즉시 로드됩니다.
+2. **`_redirects` & `netlify.toml` 탑재**:
+   - `/* -> /index.html (200)` 규칙이 적용되어 서브 라우트나 새로고침 시에도 404가 발생하지 않습니다.
+   - 기존 URL인 `/daylog-improved.html`로 접속하더라도 `/index.html`로 자동 301 리다이렉트됩니다.
+
+### Netlify 배포 방법
+1. **GitHub 연동 배포 시**:
+   - Build command: *(비워둠)*
+   - Publish directory: `.` (또는 루트 디렉터리)
+2. **Netlify Drop (드래그 앤 드롭) 배포 시**:
+   - `dist/DayLog_Release_v1.0.0.zip`의 압축을 푼 폴더 전체(또는 프로젝트 루트 폴더)를 [Netlify Drop](https://app.netlify.com/drop) 영역으로 드래그합니다.
+
+---
+
 ## 🚀 로컬 실행 방법
 
 별도의 복잡한 빌드 단계 없이 웹 브라우저에서 바로 열거나 간이 웹 서버를 통해 실행할 수 있습니다.
 
 ### 방법 1: 브라우저에서 직접 열기
-- 탐색기에서 `daylog-improved.html` 파일을 더블 클릭하여 실행합니다.
+- 탐색기에서 `index.html` (또는 `daylog-improved.html`) 파일을 더블 클릭하여 실행합니다.
 
 ### 방법 2: 로컬 HTTP 서버 실행 (권장, PWA 및 서비스 워커 테스트)
 ```bash
 # npx http-server 실행 (또는 python -m http.server 8080)
 npx -y http-server . -p 8080 -c-1
 ```
-이후 웹 브라우저에서 `http://localhost:8080/daylog-improved.html` 로 접속합니다.
+이후 웹 브라우저에서 `http://localhost:8080/` 로 접속합니다.
 
 ---
 
