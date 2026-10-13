@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="50%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.8" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+
+  <!-- Inner glowing circle / Clock dial -->
+  <circle cx="256" cy="256" r="170" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="12" />
+  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#glowGrad)" stroke-width="12" stroke-dasharray="1068" stroke-dashoffset="320" stroke-linecap="round" />
+
+  <!-- Central Glass Card -->
+  <rect x="146" y="146" width="220" height="220" rx="44" fill="rgba(255, 255, 255, 0.12)" filter="url(#shadow)" stroke="rgba(255, 255, 255, 0.3)" stroke-width="3" />
+
+  <!-- Antigravity D Logo Symbol (Stylized App & Clock Graph) -->
+  <!-- Bar chart bars inside card -->
+  <rect x="186" y="270" width="22" height="56" rx="8" fill="#38bdf8" />
+  <rect x="222" y="220" width="22" height="106" rx="8" fill="#818cf8" />
+  <rect x="258" y="180" width="22" height="146" rx="8" fill="#c084fc" />
+  <rect x="294" y="240" width="22" height="86" rx="8" fill="#f472b6" />
+
+  <!-- Subtle star/orbit element -->
+  <circle cx="360" cy="150" r="14" fill="#38bdf8" filter="url(#shadow)" />
+  <path d="M 360 142 L 360 158 M 352 150 L 368 150" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+</svg>

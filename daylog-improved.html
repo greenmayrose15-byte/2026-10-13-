@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DayLog - Antigravity 스타일의 개인 앱 사용 시간 기록 및 주간 리포트 분석 시스템">
+  <meta name="theme-color" content="#4f46e5">
+  <title>DayLog - 앱 사용 시간 기록 및 분석 시스템</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="daylog-improved.css">
+</head>
+<body>
+  <!-- App Background Decorative Glows -->
+  <div class="glow-orb orb-1" aria-hidden="true"></div>
+  <div class="glow-orb orb-2" aria-hidden="true"></div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="logo-mark">
+          <svg viewBox="0 0 40 40" width="32" height="32" fill="none">
+            <rect width="40" height="40" rx="10" fill="url(#brandGrad)" />
+            <path d="M12 28V12h8a8 8 0 0 1 8 8c0 4.4-3.6 8-8 8h-8z" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+            <circle cx="20" cy="20" r="3" fill="#38bdf8" />
+            <defs>
+              <linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40">
+                <stop stop-color="#4f46e5"/>
+                <stop offset="1" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">DayLog <span class="badge-tag">Antigravity Pro</span></h1>
+          <p class="brand-subtitle">앱 사용 시간 기록 & 데일리 생산성 분석</p>
+        </div>
+      </div>
+
+      <!-- Live Timer Tracker in Nav (visible when active) -->
+      <div id="nav-active-timer-pill" class="nav-timer-pill hidden" aria-live="polite">
+        <span class="timer-dot pulse"></span>
+        <span id="nav-timer-app-name" class="nav-timer-app">VS Code</span>
+        <span id="nav-timer-counter" class="nav-timer-time">00:00:00</span>
+        <button id="btn-quick-stop-timer" class="btn-icon btn-sm" title="타이머 종료 및 저장">⏹</button>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-open-new-entry" class="btn btn-primary" title="새 로그 작성">
+          <span class="icon">+</span> 새 기록 추가
+        </button>
+        <button id="btn-lock-screen" class="btn btn-ghost" title="화면 잠금 (PIN 활성화 시)">
+          <span class="icon">🔒</span> <span class="btn-text">잠금</span>
+        </button>
+        <button id="btn-theme-toggle" class="btn btn-ghost" title="테마 전환 (다크/라이트)" aria-label="테마 전환">
+          <span id="theme-toggle-icon" class="icon">🌙</span>
+        </button>
+        <button id="btn-open-settings" class="btn btn-ghost" title="환경 설정" aria-label="설정">
+          <span class="icon">⚙️</span>
+        </button>
+        <button id="btn-open-guide" class="btn btn-ghost" title="사용 가이드 및 온보딩" aria-label="가이드">
+          <span class="icon">💡</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content container">
+    <!-- Top Summary & Daily Target Section -->
+    <section class="overview-section" aria-label="대시보드 요약">
+      <div class="overview-header-row">
+        <div>
+          <h2 id="current-date-heading" class="date-display">2026년 10월 13일 화요일</h2>
+          <p class="date-subtext">오늘 하루 애플리케이션 사용 현황과 목표 달성률을 확인하세요.</p>
+        </div>
+        <div class="daily-target-card" id="daily-target-box">
+          <div class="target-card-header">
+            <span class="target-label">🎯 일일 목표 사용 시간</span>
+            <span id="target-progress-text" class="target-status">0h 0m / 4h 0m (0%)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="target-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <p id="target-alert-msg" class="target-subtext">목표 시간 대비 적정 사용량을 유지 중입니다.</p>
+        </div>
+      </div>
+
+      <!-- KPI Statistics Grid (4 Key Cards) -->
+      <div class="kpi-grid">
+        <div class="kpi-card" id="kpi-card-today">
+          <div class="kpi-icon-wrap icon-indigo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">오늘 총 사용 시간</span>
+            <div class="kpi-value-row">
+              <span id="kpi-today-total" class="kpi-number">0시간 0분</span>
+            </div>
+            <span id="kpi-today-entries-count" class="kpi-sub">총 0개 세션 기록</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-card-avg">
+          <div class="kpi-icon-wrap icon-cyan">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">주간 일평균 사용</span>
+            <div class="kpi-value-row">
+              <span id="kpi-daily-avg" class="kpi-number">0시간 0분</span>
+            </div>
+            <span id="kpi-avg-sub" class="kpi-sub">최근 7일 기준 평균</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-card-top-app">
+          <div class="kpi-icon-wrap icon-violet">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">최다 사용 앱 (Top 1)</span>
+            <div class="kpi-value-row">
+              <span id="kpi-top-app-name" class="kpi-number">-</span>
+            </div>
+            <span id="kpi-top-app-time" class="kpi-sub">기록 대기 중</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-card-streak">
+          <div class="kpi-icon-wrap icon-amber">
+            <span class="streak-emoji">🔥</span>
+          </div>
+          <div class="kpi-details">
+            <span class="kpi-title">연속 기록 달성일</span>
+            <div class="kpi-value-row">
+              <span id="kpi-streak-count" class="kpi-number">0일 연속</span>
+            </div>
+            <span id="kpi-streak-msg" class="kpi-sub">오늘 기록 시 유지!</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Two-Column Layout -->
+    <div class="workspace-grid">
+      <!-- Left Column: Weekly Analytics & Live Log Creator -->
+      <div class="workspace-column left-column">
+        <!-- 7-Day Weekly Report Chart -->
+        <section class="card chart-card" aria-label="주간 리포트">
+          <div class="card-header">
+            <div class="header-left">
+              <h3 class="card-title">📊 주간 리포트 (최근 7일 막대 그래프)</h3>
+              <p class="card-subtitle">일자별 총 사용 시간 및 주요 앱 분포</p>
+            </div>
+            <div class="chart-legend" id="chart-app-legend">
+              <!-- Dynamically populated legend badges -->
+            </div>
+          </div>
+          <div class="chart-body">
+            <div id="weekly-chart-container" class="weekly-bar-chart">
+              <!-- SVG Weekly Chart rendered by JS -->
+            </div>
+          </div>
+          <div class="chart-footer">
+            <span class="chart-footer-note">💡 날짜 막대를 클릭하면 해당 일자의 상세 기록만 필터링됩니다.</span>
+            <button id="btn-chart-reset-filter" class="btn btn-sm btn-ghost hidden">전체 날짜 보기</button>
+          </div>
+        </section>
+
+        <!-- Quick Log Creator / Live Timer -->
+        <section class="card entry-creator-card" id="creator-card">
+          <div class="card-header">
+            <div class="header-left">
+              <h3 class="card-title">⏱️ 앱 사용 기록 작성</h3>
+              <p class="card-subtitle">앱 선택, 시간 입력(타이머 또는 수동), 마크다운 세부 메모 작성</p>
+            </div>
+            <div class="creator-mode-switch">
+              <button id="mode-timer-tab" class="tab-btn active" type="button">실시간 타이머</button>
+              <button id="mode-manual-tab" class="tab-btn" type="button">수동 시간 입력</button>
+            </div>
+          </div>
+
+          <form id="form-create-entry" class="form-creator">
+            <!-- App Selector with presets and add button -->
+            <div class="form-group">
+              <div class="field-label-row">
+                <label for="select-app" class="field-label">대상 애플리케이션 <span class="required">*</span></label>
+                <button type="button" id="btn-quick-add-app" class="btn-link">+ 새 앱 추가</button>
+              </div>
+              <div class="app-selection-wrapper">
+                <select id="select-app" class="form-input form-select" required>
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+              <!-- App Preset Quick Pills -->
+              <div class="quick-app-pills" id="quick-app-pills">
+                <!-- Preset pills populated by JS -->
+              </div>
+            </div>
+
+            <!-- Detail Title -->
+            <div class="form-group">
+              <label for="input-entry-title" class="field-label">작업 세부 이름 / 활동 내용 <span class="required">*</span></label>
+              <input type="text" id="input-entry-title" class="form-input" placeholder="예: DayLog 프로토타입 UI 작업, 기획 회의 등" required>
+            </div>
+
+            <!-- Time Tracking Input Group -->
+            <!-- Mode 1: Live Stopwatch Timer -->
+            <div id="timer-mode-container" class="timer-mode-box">
+              <div class="stopwatch-display">
+                <div class="stopwatch-digits" id="live-timer-digits">00:00:00</div>
+                <div class="stopwatch-status" id="live-timer-status">타이머 대기 중</div>
+              </div>
+              <div class="timer-controls">
+                <button type="button" id="btn-timer-start" class="btn btn-emerald">▶ 시작</button>
+                <button type="button" id="btn-timer-pause" class="btn btn-amber" disabled>⏸ 일시정지</button>
+                <button type="button" id="btn-timer-reset" class="btn btn-ghost" disabled>🔄 초기화</button>
+              </div>
+            </div>
+
+            <!-- Mode 2: Manual Time Selection -->
+            <div id="manual-mode-container" class="manual-mode-box hidden">
+              <div class="manual-time-grid">
+                <div class="form-group-sub">
+                  <label for="input-manual-date" class="field-label">기록 날짜</label>
+                  <input type="date" id="input-manual-date" class="form-input">
+                </div>
+                <div class="form-group-sub">
+                  <label for="input-manual-duration" class="field-label">소요 시간 (분)</label>
+                  <input type="number" id="input-manual-duration" class="form-input" placeholder="60" min="1" max="1440">
+                </div>
+                <div class="form-group-sub">
+                  <label for="input-start-time" class="field-label">시작 시각 (선택)</label>
+                  <input type="time" id="input-start-time" class="form-input">
+                </div>
+                <div class="form-group-sub">
+                  <label for="input-end-time" class="field-label">종료 시각 (선택)</label>
+                  <input type="time" id="input-end-time" class="form-input">
+                </div>
+              </div>
+              <p class="help-text">시작/종료 시각을 입력하면 소요 시간(분)이 자동으로 계산되어 채워집니다.</p>
+            </div>
+
+            <!-- Tags Input -->
+            <div class="form-group">
+              <label for="input-tags" class="field-label">태그 (쉼표로 구분)</label>
+              <input type="text" id="input-tags" class="form-input" placeholder="예: 개발, 프론트엔드, 업무, 일기">
+              <div class="popular-tags-row" id="popular-tags-chips">
+                <!-- Suggested tags -->
+              </div>
+            </div>
+
+            <!-- Markdown Content with Live Preview Toggle -->
+            <div class="form-group">
+              <div class="field-label-row">
+                <label for="textarea-markdown" class="field-label">세부 내용 / 작업 일기 (Markdown 지원)</label>
+                <div class="markdown-tabs">
+                  <button type="button" id="btn-tab-write" class="tab-pill active">작성</button>
+                  <button type="button" id="btn-tab-preview" class="tab-pill">미리보기</button>
+                </div>
+              </div>
+              <div class="markdown-editor-wrap">
+                <textarea id="textarea-markdown" class="form-textarea" rows="4" placeholder="작업 내역, 회고, 마크다운 체크리스트 등을 기록하세요.
+- [x] 핵심 요구사항 분석
+- [ ] 주간 차트 렌더링 확인"></textarea>
+                <div id="markdown-preview-box" class="markdown-preview hidden"></div>
+              </div>
+            </div>
+
+            <!-- Submit Button Row -->
+            <div class="form-submit-row">
+              <button type="button" id="btn-form-clear" class="btn btn-ghost">입력 내용 비우기</button>
+              <button type="submit" id="btn-save-entry" class="btn btn-primary btn-lg">
+                <span class="icon">💾</span> 사용 로그 기록 저장
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- Right Column: Filter, Search & History Entries List -->
+      <div class="workspace-column right-column">
+        <section class="card entries-list-card" aria-label="기록 목록">
+          <!-- Filter & Search Toolbar -->
+          <div class="filter-toolbar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-keyword" class="form-input search-input" placeholder="앱 이름, 작업명, 마크다운 내용 검색...">
+              <button type="button" id="btn-search-clear" class="btn-clear hidden" title="검색어 지우기">✕</button>
+            </div>
+
+            <div class="filter-controls-row">
+              <div class="filter-item">
+                <label for="filter-app" class="filter-label">앱 필터:</label>
+                <select id="filter-app" class="form-select filter-select">
+                  <option value="ALL">모든 앱 (전체)</option>
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label for="sort-entries" class="filter-label">정렬 기준:</label>
+                <select id="sort-entries" class="form-select filter-select">
+                  <option value="date-desc">날짜 최신순</option>
+                  <option value="date-asc">날짜 과거순</option>
+                  <option value="time-desc">사용 시간 긴 순</option>
+                  <option value="time-asc">사용 시간 짧은 순</option>
+                  <option value="app-asc">앱 이름순 (A-Z)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Active Tag Filters Row -->
+            <div id="active-tag-chips-bar" class="active-tag-bar hidden">
+              <span class="tag-bar-label">선택 태그:</span>
+              <span id="active-tag-name" class="active-tag-badge">#개발</span>
+              <button id="btn-remove-tag-filter" class="btn-link btn-sm">필터 해제</button>
+            </div>
+          </div>
+
+          <!-- Entries Count & Bulk Actions -->
+          <div class="entries-meta-bar">
+            <span id="entries-count-display" class="entries-counter">총 0개의 기록</span>
+            <div class="meta-bar-actions">
+              <button id="btn-load-demo-data-quick" class="btn btn-sm btn-ghost" title="테스트용 예시 데이터 로드">
+                ✨ 예시 데이터 로드
+              </button>
+            </div>
+          </div>
+
+          <!-- Entries Container (Scrollable) -->
+          <div id="entries-container" class="entries-list-content">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Empty State (Shown when no entries) -->
+          <div id="empty-state-view" class="empty-state-box">
+            <div class="empty-graphic">
+              <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <h3 class="empty-title">기록된 앱 사용 내역이 없습니다</h3>
+            <p class="empty-desc">
+              DayLog는 안전한 로컬 저장 우선 시스템입니다.<br>
+              좌측 폼에서 직접 기록을 시작하거나, 예시 데이터를 로드하여 대시보드 리포트를 바로 체험해보세요!
+            </p>
+            <div class="empty-actions">
+              <button id="btn-empty-load-demo" class="btn btn-primary">
+                ✨ 예시 데이터 로드 (7일치 리포트 체험)
+              </button>
+              <button id="btn-empty-focus-form" class="btn btn-ghost">
+                ✍️ 첫 기록 직접 작성하기
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======================= MODALS ======================= -->
+
+  <!-- 1. Add Custom App Modal -->
+  <div id="modal-add-app" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-add-app-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-add-app-title" class="modal-title">새 애플리케이션 추가</h3>
+        <button type="button" class="btn-close-modal" data-close-modal="modal-add-app" aria-label="닫기">✕</button>
+      </div>
+      <form id="form-add-app" class="modal-body">
+        <div class="form-group">
+          <label for="input-new-app-name" class="field-label">앱 이름 <span class="required">*</span></label>
+          <input type="text" id="input-new-app-name" class="form-input" placeholder="예: IntelliJ, Discord, Blender..." required>
+        </div>
+        <div class="form-group">
+          <label for="input-new-app-category" class="field-label">카테고리</label>
+          <select id="input-new-app-category" class="form-select">
+            <option value="개발">개발 (Development)</option>
+            <option value="디자인">디자인 (Design)</option>
+            <option value="커뮤니케이션">커뮤니케이션 (Communication)</option>
+            <option value="생산성/오피스">생산성/오피스 (Productivity)</option>
+            <option value="브라우저/웹">브라우저/웹 (Browser)</option>
+            <option value="엔터테인먼트">엔터테인먼트 (Entertainment)</option>
+            <option value="기타">기타 (Others)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="field-label">테마 색상</label>
+          <div class="color-palette-selector" id="color-palette-options">
+            <!-- Palette radios -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close-modal="modal-add-app">취소</button>
+          <button type="submit" class="btn btn-primary">앱 등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Edit Entry Modal -->
+  <div id="modal-edit-entry" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-edit-title">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-edit-title" class="modal-title">기록 수정</h3>
+        <button type="button" class="btn-close-modal" data-close-modal="modal-edit-entry" aria-label="닫기">✕</button>
+      </div>
+      <form id="form-edit-entry" class="modal-body">
+        <input type="hidden" id="edit-entry-id">
+        <div class="form-group">
+          <label for="edit-select-app" class="field-label">대상 애플리케이션</label>
+          <select id="edit-select-app" class="form-select" required></select>
+        </div>
+        <div class="form-group">
+          <label for="edit-entry-title" class="field-label">작업 세부 이름</label>
+          <input type="text" id="edit-entry-title" class="form-input" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="edit-entry-date" class="field-label">날짜</label>
+            <input type="date" id="edit-entry-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-entry-duration" class="field-label">소요 시간 (분 단위)</label>
+            <input type="number" id="edit-entry-duration" class="form-input" min="1" max="1440" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="edit-entry-tags" class="field-label">태그 (쉼표 구분)</label>
+          <input type="text" id="edit-entry-tags" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="edit-entry-content" class="field-label">마크다운 세부 메모</label>
+          <textarea id="edit-entry-content" class="form-textarea" rows="4"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close-modal="modal-edit-entry">취소</button>
+          <button type="submit" class="btn btn-primary">변경 사항 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Settings Modal -->
+  <div id="modal-settings" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-settings-title" class="modal-title">⚙️ 시스템 환경 설정</h3>
+        <button type="button" class="btn-close-modal" data-close-modal="modal-settings" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body settings-body">
+        <!-- Daily Target Setting -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-name">하루 목표 사용 시간</span>
+            <span class="setting-desc">목표 시간 초과 또는 적정 사용량 지표를 계산합니다.</span>
+          </div>
+          <div class="setting-control">
+            <div class="input-with-suffix">
+              <input type="number" id="setting-daily-target-hours" class="form-input num-input" min="1" max="24" value="4">
+              <span class="suffix">시간</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIN Security Lock Setting -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-name">보안 PIN 잠금 활성화</span>
+            <span class="setting-desc">4자리 비밀번호를 설정하여 브라우저 내 열람을 잠급니다.</span>
+          </div>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-pin-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- PIN Change Section (Visible if PIN is on) -->
+        <div id="pin-change-section" class="setting-item sub-setting hidden">
+          <div class="setting-info">
+            <span class="setting-name">4자리 PIN 번호 변경</span>
+            <span class="setting-desc">새로운 4자리 숫자를 입력하세요.</span>
+          </div>
+          <div class="setting-control flex-gap">
+            <input type="password" id="setting-pin-input" class="form-input pin-input" maxlength="4" placeholder="••••">
+            <button type="button" id="btn-save-pin" class="btn btn-sm btn-primary">PIN 저장</button>
+          </div>
+        </div>
+
+        <!-- Local Data Encryption Obfuscation Toggle -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-name">로컬 저장 암호화/인코딩</span>
+            <span class="setting-desc">localStorage 저장 시 Base64/XOR 클라이언트 인코딩 적용.</span>
+          </div>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-encryption-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Backup & Restore Section -->
+        <div class="setting-divider"></div>
+        <h4 class="settings-section-title">📦 데이터 백업 및 복원</h4>
+        <div class="backup-actions-grid">
+          <div class="backup-action-card">
+            <h5>JSON 데이터 내보내기</h5>
+            <p>모든 앱 목록 및 시간 로그를 JSON 파일로 다운로드합니다.</p>
+            <button type="button" id="btn-export-json" class="btn btn-outline-cyan">⬇️ JSON 내보내기</button>
+          </div>
+          <div class="backup-action-card">
+            <h5>JSON 데이터 가져오기</h5>
+            <p>백업된 JSON 파일을 불러와 기록을 복원합니다.</p>
+            <input type="file" id="input-import-json" accept=".json" class="hidden">
+            <button type="button" id="btn-trigger-import" class="btn btn-outline-violet">⬆️ JSON 파일 선택</button>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="setting-divider"></div>
+        <h4 class="settings-section-title text-danger">⚠️ 초기화 및 주의 영역</h4>
+        <div class="danger-box">
+          <div>
+            <strong>모든 데이터 초기화</strong>
+            <p>로컬에 저장된 모든 사용 시간 기록과 커스텀 앱 목록을 삭제합니다.</p>
+          </div>
+          <button type="button" id="btn-reset-all-data" class="btn btn-danger">전체 데이터 초기화</button>
+        </div>
+
+        <div class="settings-footer-links">
+          <button type="button" id="btn-open-privacy-from-settings" class="btn-link">개인정보처리방침 안내</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-close-modal="modal-settings">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. PIN Lock Screen Overlay -->
+  <div id="pin-lock-overlay" class="pin-lock-overlay hidden" role="dialog" aria-modal="true">
+    <div class="pin-box">
+      <div class="pin-header">
+        <div class="pin-shield-icon">🔒</div>
+        <h2>DayLog 보안 잠금</h2>
+        <p>기록을 안전하게 보호 중입니다. 4자리 PIN을 입력하세요.</p>
+      </div>
+      <div class="pin-dots-row" id="pin-dots-row">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+      <div id="pin-error-text" class="pin-error hidden">잘못된 PIN 번호입니다. 다시 시도하세요.</div>
+      <div class="pin-keypad" id="pin-keypad">
+        <button type="button" class="pin-key" data-num="1">1</button>
+        <button type="button" class="pin-key" data-num="2">2</button>
+        <button type="button" class="pin-key" data-num="3">3</button>
+        <button type="button" class="pin-key" data-num="4">4</button>
+        <button type="button" class="pin-key" data-num="5">5</button>
+        <button type="button" class="pin-key" data-num="6">6</button>
+        <button type="button" class="pin-key" data-num="7">7</button>
+        <button type="button" class="pin-key" data-num="8">8</button>
+        <button type="button" class="pin-key" data-num="9">9</button>
+        <button type="button" class="pin-key key-action" id="btn-pin-clear">C</button>
+        <button type="button" class="pin-key" data-num="0">0</button>
+        <button type="button" class="pin-key key-action" id="btn-pin-backspace">⌫</button>
+      </div>
+      <button type="button" id="btn-pin-emergency-reset" class="btn-link btn-sm pin-reset-link">PIN을 잊으셨나요? (초기화 안내)</button>
+    </div>
+  </div>
+
+  <!-- 5. Confirmation Dialog Modal -->
+  <div id="modal-confirm" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-sm confirm-card">
+      <div class="confirm-icon" id="confirm-dialog-icon">⚠️</div>
+      <h3 id="confirm-dialog-title" class="modal-title">작업 확인</h3>
+      <p id="confirm-dialog-message" class="confirm-msg">정말 이 작업을 진행하시겠습니까?</p>
+      <div class="modal-footer confirm-footer">
+        <button type="button" id="btn-confirm-cancel" class="btn btn-ghost">취소</button>
+        <button type="button" id="btn-confirm-ok" class="btn btn-danger">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Onboarding / Guide Modal -->
+  <div id="modal-guide" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-guide-title">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-guide-title" class="modal-title">🚀 DayLog 시작 가이드</h3>
+        <button type="button" class="btn-close-modal" data-close-modal="modal-guide" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body guide-body">
+        <div class="guide-feature-row">
+          <div class="guide-step-num">1</div>
+          <div class="guide-step-content">
+            <h4>앱 선택 및 시간 기록</h4>
+            <p>VS Code, Chrome 등 작업 중인 애플리케이션을 선택하고 <strong>실시간 타이머</strong>를 시작하거나 <strong>수동 시간(분)</strong>을 입력해 기록합니다.</p>
+          </div>
+        </div>
+        <div class="guide-feature-row">
+          <div class="guide-step-num">2</div>
+          <div class="guide-step-content">
+            <h4>마크다운 일기 & 세부 작업 메모</h4>
+            <p>단순한 시간 기록뿐만 아니라 마크다운 문법으로 작업 내역, 체크리스트, 감정 일기 등을 자유롭게 남길 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="guide-feature-row">
+          <div class="guide-step-num">3</div>
+          <div class="guide-step-content">
+            <h4>7일 주간 리포트 및 지표 분석</h4>
+            <p>일별 사용 시간 막대 그래프, 연속 기록일(Streak 🔥), 가장 많이 쓴 앱(Top 1), 일일 평균 시간과 목표치 달성률을 한눈에 파악합니다.</p>
+          </div>
+        </div>
+        <div class="guide-feature-row">
+          <div class="guide-step-num">4</div>
+          <div class="guide-step-content">
+            <h4>안전한 100% 로컬 저장 & PIN 보안</h4>
+            <p>서버로 데이터를 전송하지 않으며 모든 데이터는 브라우저 내부(localStorage)에 안전하게 보관됩니다. 필요 시 PIN 잠금 및 JSON 백업을 활용하세요.</p>
+          </div>
+        </div>
+        <div class="guide-demo-box">
+          <p>처음이라 화면이 비어있다면, 7일치 풍성한 테스트 데이터로 즉시 체험해보세요!</p>
+          <button type="button" id="btn-guide-load-demo" class="btn btn-emerald">✨ 예시 데이터 로드하기</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-close-modal="modal-guide">DayLog 시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Privacy Policy Modal -->
+  <div id="modal-privacy" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-privacy-title">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-privacy-title" class="modal-title">🛡️ 개인정보처리방침 (Privacy Policy)</h3>
+        <button type="button" class="btn-close-modal" data-close-modal="modal-privacy" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body privacy-body markdown-preview">
+        <h4>1. 로컬 데이터 원칙 (Local-First)</h4>
+        <p>DayLog는 사용자의 개인정보와 프라이버시를 최우선으로 존중합니다. 애플리케이션 사용 시간 로그, 작업 메모, 통계 등 모든 데이터는 사용자의 로컬 브라우저 저장소(IndexedDB / localStorage)에만 저장되며 외부 서버나 타사 분석 도구로 일절 전송되지 않습니다.</p>
+        
+        <h4>2. 수집 및 보관 정보</h4>
+        <ul>
+          <li>선택한 애플리케이션 이름 및 카테고리</li>
+          <li>사용 시작/종료 시각 및 누적 소요 시간</li>
+          <li>사용자가 직접 작성한 메모, 일기 및 태그</li>
+          <li>설정한 하루 목표 시간 및 보안 PIN (해시 형태)</li>
+        </ul>
+
+        <h4>3. 데이터의 백업 및 파기 권한</h4>
+        <p>사용자는 언제든지 설정 메뉴에서 전체 데이터를 JSON 파일 형태로 직접 내보내어 백업하거나, 즉시 전체 초기화(영구 삭제)할 수 있는 완전한 통제권을 가집니다.</p>
+
+        <h4>4. PWA 및 오프라인 기능</h4>
+        <p>본 앱은 오프라인에서도 완전하게 동작하도록 서비스 워커(Service Worker)를 구성하고 있으며, 네트워크 연결 없이도 안전하게 독립 실행됩니다.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-close-modal="modal-privacy">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Script Load Execution Checklist (Ensure correct order) -->
+  <script src="app-daylog.js"></script>
+</body>
+</html>
